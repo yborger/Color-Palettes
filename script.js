@@ -1,3 +1,29 @@
+function addCard(){
+	// create the cards
+	var newBox = document.createElement('div'); //make new
+	newBox.classList.add('box'); //label as a box (for css!)
+
+	//make the inner html structure of the boxes
+	var colorCodeDiv = document.createElement('div'); 
+	colorCodeDiv.textContent = '(r,g,b)';
+	colorCodeDiv.classList.add('colorCode');
+	var boxColorDiv = document.createElement('div'); 
+	boxColorDiv.classList.add('boxColor');
+
+	//add the inner structure to the box so it is the same as the others
+	newBox.appendChild(colorCodeDiv);
+	newBox.appendChild(boxColorDiv); 
+
+	document.querySelector('.container').appendChild(newBox); //add the new box to the container!
+}
+
+function removeCard(){
+	// remove the cards
+	var container = document.querySelector('.container'); 
+	if(container.children.length > 0){
+		container.removeChild(container.lastChild);
+	}
+}
 
 function generateRandomColor(){
 	const r = Math.floor(Math.random() * 256);
@@ -8,6 +34,10 @@ function generateRandomColor(){
 
 function achromatic(){
 	// black gray white
+	// r = g = b
+	let x = 255 / container.children.length;
+	
+
 
 }
 
@@ -66,4 +96,12 @@ document.querySelector('.generateBtn').addEventListener('click', function(){
 		colorCodeDiv.textContent = `(${color.r}, ${color.g}, ${color.b})`;
 		console.log(color);
 	});
+});
+
+document.querySelector('.addCardBtn').addEventListener('click', function(){
+	addCard();
+});
+
+document.querySelector('.removeCardBtn').addEventListener('click', function(){
+	removeCard();
 });
