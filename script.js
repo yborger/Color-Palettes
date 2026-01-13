@@ -105,3 +105,8 @@ document.querySelector('.addCardBtn').addEventListener('click', function(){
 document.querySelector('.removeCardBtn').addEventListener('click', function(){
 	removeCard();
 });
+
+document.querySelector('box').addEventListener('click', function(){
+	// future feature: lock in a color so it doesn't change on generate
+
+});

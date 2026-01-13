@@ -33,6 +33,7 @@ button:active{
 
 .container {
   display: flex;
+  flex-wrap:wrap;
   justify-content: center;
   gap: 15px;
   padding: 15px;
@@ -41,7 +42,7 @@ button:active{
 .box{
   display: flex;
   flex-direction: column;
-  width: 25%;
+  width: 200px;
   height: 250px;
   color: black;
   display: flex;
@@ -50,9 +51,16 @@ button:active{
   border-color:black;
   border-radius: 8px;
   border-style: solid;
-  box-shadow: 0px 5px 25px lightgray;
-
+  border-width: 1px;
+  box-shadow: 0px 5px 25px lightgray; 
 }
+
+.box:hover{
+  box-shadow: 0px 12px 30px gray;  
+  height: 260px;
+  width: 26%;
+}
+
 .colorCode{
   font-size: 14px;
   margin-bottom: 5px;
