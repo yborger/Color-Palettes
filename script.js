@@ -9,9 +9,13 @@ function addCard(){
 	colorCodeDiv.classList.add('colorCode');
 	var boxColorDiv = document.createElement('div'); 
 	boxColorDiv.classList.add('boxColor');
+	var hexcodeDiv = document.createElement('div');
+	hexcodeDiv.textContent = '#FFFFFF';
+	hexcodeDiv.classList.add('hexcode');
 
 	//add the inner structure to the box so it is the same as the others
 	newBox.appendChild(colorCodeDiv);
+	newBox.appendChild(hexcodeDiv);
 	newBox.appendChild(boxColorDiv); 
 
 	document.querySelector('.container').appendChild(newBox); //add the new box to the container!
@@ -32,11 +36,41 @@ function generateRandomColor(){
 	return {r, g, b};
 }
 
+function rgbToHex(r, g, b) {
+	return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+}
+
+function reorderBoxes(){
+	// reorder the boxes based on color values
+	//should i do this by hex
+	var container = document.querySelector('.container');
+	var boxes = Array.from(container.children);
+
+	console.log(boxes);
+
+	boxes.sort((a, b) => {
+		const colorA = a.querySelector('.hexcode');
+		const colorB = b.querySelector('.hexcode');
+		return colorA.textContent.localeCompare(colorB.textContent);
+	});
+
+	//boxes array is now sorted
+	console.log(boxes);
+	//clear container and re-add in order
+	for(let i = container.length - 1; i >= 0; i--){
+		container.removeChild(container.children[i]);
+	}
+
+	boxes.forEach(box => {
+		container.appendChild(box);
+	});	
+
+}
+
 function achromatic(){
 	// black gray white
 	// r = g = b
-	let x = 255 / container.children.length;
-	
+	let x = 255 / container.children.length;	
 
 
 }
@@ -91,9 +125,11 @@ document.querySelector('.generateBtn').addEventListener('click', function(){
 	boxes.forEach(box => {
 		const color = generateRandomColor();
 		const boxColorDiv = box.querySelector('.boxColor');
+		const hexcodeDiv = box.querySelector('.hexcode');
 		const colorCodeDiv = box.querySelector('.colorCode');
 		boxColorDiv.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
 		colorCodeDiv.textContent = `(${color.r}, ${color.g}, ${color.b})`;
+		hexcodeDiv.textContent = rgbToHex(color.r, color.g, color.b);
 		console.log(color);
 	});
 });
@@ -106,7 +142,13 @@ document.querySelector('.removeCardBtn').addEventListener('click', function(){
 	removeCard();
 });
 
-document.querySelector('box').addEventListener('click', function(){
+
+
+document.querySelector('.reorderBtn').addEventListener('click', function(){
+	reorderBoxes();
+});
+
+//document.querySelector('box').addEventListener('click', function(){
 	// future feature: lock in a color so it doesn't change on generate
 
-});
+//});

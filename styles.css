@@ -24,7 +24,7 @@ button:active{
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .title {
@@ -61,16 +61,25 @@ button:active{
   width: 26%;
 }
 
-.colorCode{
-  font-size: 14px;
-  margin-bottom: 5px;
-  padding: 8px;
+.colorCode {
+  font-size: 18px;
+  font-weight: 700;
+  padding: 2px;
   height: 20%;
+  margin-top: 10px;
+}
+
+.hexcode {
+  font-size: 18px;
+  font-weight: 700;
+  padding: 2px;
+  height: 20%;
+  margin-bottom: 5px;
 }
 
 .boxColor{
   background-color: #5C6AC4;
-  height: 80%;
+  height: 100%;
   width: 100%;
 }
 
