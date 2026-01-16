@@ -89,7 +89,13 @@ function complementary(){
 			// 4 colors = 2 neutrals with each complement (red, green, neutral red, neutral green)
 			// 5 colors = 2 neutrals with each complement + 1 TRUE neutral (red, green, neutral red, neutral green, true neutral)
 
-		}
+	let mainColor = generateRandomColor();
+	let complementColor = {
+		r: 255 - mainColor.r,
+		g: 255 - mainColor.g,
+		b: 255 - mainColor.b
+	};
+}
 
 function monochromatic(){
 	// one hue/color, vary the tones
