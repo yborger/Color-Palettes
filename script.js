@@ -158,3 +158,55 @@ document.querySelector('.reorderBtn').addEventListener('click', function(){
 	// future feature: lock in a color so it doesn't change on generate
 
 //});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('color-wheel');
+    const ctx = canvas.getContext('2d');
+    const colorCodeInput = document.getElementById('color-code');
+    const colorSwatch = document.querySelector('.color-swatch');
+    const size = canvas.width;
+    const center = size / 2;
+    const radius = size / 2;
+
+    // Function to draw the color wheel on the canvas -- googled and adapted to model
+    function drawColorWheel() {
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                const x = i - center;
+                const y = j - center;
+                const angle = Math.atan2(y, x);
+                const distance = Math.sqrt(x * x + y * y);
+
+                if (distance <= radius) {
+                    const hue = angle * 180 / Math.PI;
+                    // Hue goes from -180 to 180, adjust to 0-360
+                    const adjustedHue = (hue + 360) % 360; 
+                    const saturation = (distance / radius) * 100;
+                    const lightness = 50; // Keep lightness at 50% for full saturation
+
+                    ctx.fillStyle = `hsl(${adjustedHue}, ${saturation}%, ${lightness}%)`;
+                    ctx.fillRect(i, j, 1, 1);
+                }
+            }
+        }
+    }
+
+    // Function to get color under the cursor and update display
+		//To do: adjust this to be an active selection rather than on click
+    function pickColor(event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const imageData = ctx.getImageData(x, y, 1, 1).data;
+        const rgb = { r: imageData[0], g: imageData[1], b: imageData[2] };
+        const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+
+        colorCodeInput.value = hex;
+        colorSwatch.style.backgroundColor = hex;
+    }
+
+    // Event listener for mouse clicks on the canvas
+    canvas.addEventListener('click', pickColor);
+
+    drawColorWheel();
+});

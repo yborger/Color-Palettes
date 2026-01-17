@@ -13,14 +13,24 @@
         <button class="reorderBtn">Reorder Cards</button>
 
       </div>
-
-      <div class="container">
-        <div class="box">
-          <div class="colorCode">(r,g,b)</div>
-          <div class="hexcode">#ffffff</div>
-          <div class="boxColor"></div>
+      <div class="colorSelection">
+        <div>
+          <canvas id="color-wheel" width="300" height="300"></canvas>
+        <div class="output">
+            <label for="color-code">Selected Color (HEX):</label>
+            <input type="text" id="color-code" value="#000000" readonly>
+            <div class="color-swatch" style="background-color: #000000;"></div>
+        </div>
+       </div>
+        <div class="container">
+          <div class="box">
+            <div class="colorCode">(r,g,b)</div>
+            <div class="hexcode">#ffffff</div>
+            <div class="boxColor"></div>
+          </div>
         </div>
       </div>
+      
 
       <script src="script.js"></script>
   </body>

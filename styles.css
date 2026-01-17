@@ -49,16 +49,15 @@ button:active{
   justify-content: center; /*TEXT x-axis*/
   align-items: center;  /*TEXT y-axis*/
   border-color:black;
-  border-radius: 8px;
+  border-radius: 4px;
   border-style: solid;
-  border-width: 1px;
+  border-width: 2px;
   box-shadow: 0px 5px 25px lightgray; 
 }
 
 .box:hover{
   box-shadow: 0px 12px 30px gray;  
   height: 260px;
-  width: 26%;
 }
 
 .colorCode {
@@ -78,8 +77,42 @@ button:active{
 }
 
 .boxColor{
-  background-color: #5C6AC4;
+  background-color: #ffffff;
   height: 100%;
   width: 100%;
 }
 
+.colorSelection{
+  padding: 10px;
+  margin-bottom: 15px;
+  display: flex;
+}
+
+
+
+#color-wheel {
+    cursor: pointer;
+    border-radius: 50%; /* Makes the canvas visually a circle */
+    border: 1px solid #ccc;
+}
+
+.output {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#color-code {
+    padding: 8px;
+    font-size: 16px;
+    width: 100px;
+}
+
+.color-swatch {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}

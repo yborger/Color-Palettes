@@ -15,3 +15,7 @@ upon completion of the basic random palette generator, consider the next plan:
 -color-mood connotations? correlation dataset (there's an ai project that reads tweets and finds moods, this is the same style but colors)
 -functionally, this would be an ai that generates a cohesive palette based on a description given
 ^^-we can use known words until the ai can read a typed sentence if that's needed?
+
+
+Update: I found a color wheel for designing the palette and it's very satisfying, so it may be worth doing something similar -- having a colorwheel for the user to pick a starter color
+https://baseline.is/tools/color-wheel/
