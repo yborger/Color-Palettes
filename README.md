@@ -19,3 +19,6 @@ upon completion of the basic random palette generator, consider the next plan:
 
 Update: I found a color wheel for designing the palette and it's very satisfying, so it may be worth doing something similar -- having a colorwheel for the user to pick a starter color
 https://baseline.is/tools/color-wheel/
+
+
+Update 1/23: Idea of rounded colors or palette cards -- i like the idea of rounded and then transform into palette cards? otherwise maybe like stacked palette cards? or like a swatch card like they do when picking out paint colors? I think that could be fun.
