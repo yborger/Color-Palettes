@@ -1,0 +1,8 @@
+List of Tasks
+
+[] - turn cursor of the colorwheel into a hover-circle
+[] - readjust palette cards
+[] - draw out new ui plans for palette generator
+[] - keep color option to check certain cards
+[] - make the first card of the palette set be the selected color
+
