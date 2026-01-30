@@ -6,3 +6,4 @@ List of Tasks
 [] - keep color option to check certain cards
 [] - make the first card of the palette set be the selected color
 
+[] - remake the ui drawing
