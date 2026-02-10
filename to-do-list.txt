@@ -7,3 +7,5 @@ List of Tasks
 [] - make the first card of the palette set be the selected color
 
 [] - remake the ui drawing
+
+^update - been working on the ui, this is for the github update
