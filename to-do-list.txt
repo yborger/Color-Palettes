@@ -9,3 +9,4 @@ List of Tasks
 [] - remake the ui drawing
 
 ^update - been working on the ui, this is for the github update
+cool, still working, probably gonna be more like formula based on quantity of cards and applicable regardless of number of cards?
