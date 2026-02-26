@@ -22,3 +22,6 @@ https://baseline.is/tools/color-wheel/
 
 
 Update 1/23: Idea of rounded colors or palette cards -- i like the idea of rounded and then transform into palette cards? otherwise maybe like stacked palette cards? or like a swatch card like they do when picking out paint colors? I think that could be fun.
+
+update 2/25: swatched colors in gradient in like "pill shapes" or card stack - card stack looked really messy last time so i will draft a few to see if thats still possible otherwise consider other
+
