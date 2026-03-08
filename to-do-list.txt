@@ -10,3 +10,5 @@ List of Tasks
 
 ^update - been working on the ui, this is for the github update
 cool, still working, probably gonna be more like formula based on quantity of cards and applicable regardless of number of cards?
+
+drawing the appearance - this is my update to say look at my ipad app
