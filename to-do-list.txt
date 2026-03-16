@@ -1,14 +1,24 @@
-List of Tasks
+List of Tasks -- UI and main program
 
-[] - turn cursor of the colorwheel into a hover-circle
-[] - readjust palette cards
-[] - draw out new ui plans for palette generator
-[] - keep color option to check certain cards
-[] - make the first card of the palette set be the selected color
+[ ] - turn cursor of the colorwheel into a hover-circle
+[ ] - readjust palette cards
+[ ] - draw out new ui plans for palette generator
+[ ] - keep color option to check certain cards
+[ ] - make the first card of the palette set be the selected color
+[x] - remake the ui drawing
 
-[] - remake the ui drawing
 
-^update - been working on the ui, this is for the github update
-cool, still working, probably gonna be more like formula based on quantity of cards and applicable regardless of number of cards?
-
-drawing the appearance - this is my update to say look at my ipad app
+To-do for the AI add-on:
+[x] - dataset for color to connotations -- https://huggingface.co/datasets/boltuix/color-pedia
+[ ] - natural language processor -- openai?
+[ ] - dev the ai to give most accurate color based on details given
+    [ ] - enter a description, return 5 colors that work
+            ^ this is theoretically the easy part with so many options
+    [ ] - take the color options offered, put together colors that work well together based on formulas
+            ^ we have hex and rgb codes so here's the idea
+                -grab a color from the list
+                -enter into formula (ex. tetradic: here's a color)
+                -return from formula = list of relevant colors
+                -scan the list of options for anything that is close (within a certain quantity)
+                    -if nothing matches, return the relevant color with a gradient in monochromatic 
+                
