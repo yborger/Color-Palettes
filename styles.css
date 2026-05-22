@@ -93,7 +93,7 @@ button:active{
 #color-wheel {
     cursor: pointer;
     border-radius: 50%; /* Makes the canvas visually a circle */
-    border: 1px solid #ccc;
+    position: absolute;
 }
 
 .output {
@@ -116,3 +116,8 @@ button:active{
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
+#clear-wheel {
+    position: relative;
+  }
+
