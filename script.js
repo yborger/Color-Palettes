@@ -57,7 +57,7 @@ function reorderBoxes(){
 	//boxes array is now sorted
 	console.log(boxes);
 	//clear container and re-add in order
-	for(let i = container.length - 1; i >= 0; i--){
+	for(let i = container.children.length - 1; i >= 0; i--){
 		container.removeChild(container.children[i]);
 	}
 
@@ -67,65 +67,257 @@ function reorderBoxes(){
 
 }
 
-//TO DO
+// ---- shared helpers ----
+
+// standard HSL -> RGB conversion (hand-written, double check against MDN if unsure)
+function hslToRgb(h, s, l) {
+	s /= 100; l /= 100;
+	const k = n => (n + h / 30) % 12;
+	const a = s * Math.min(l, 1 - l);
+	const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+	return {
+		r: Math.round(f(0) * 255),
+		g: Math.round(f(8) * 255),
+		b: Math.round(f(4) * 255)
+	};
+}
+
+// standard RGB -> HSL conversion, used to pull a base hue out of the first card's color
+function rgbToHsl(r, g, b){
+	r /= 255; g /= 255; b /= 255;
+	const max = Math.max(r, g, b), min = Math.min(r, g, b);
+	let h, s, l = (max + min) / 2;
+	if(max === min){
+		h = s = 0;
+	} else {
+		const d = max - min;
+		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+		switch(max){
+			case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+			case g: h = (b - r) / d + 2; break;
+			case b: h = (r - g) / d + 4; break;
+		}
+		h *= 60;
+	}
+	return {h, s: s * 100, l: l * 100};
+}
+
+function hexToRgb(hex){
+	hex = hex.replace('#', '');
+	if(hex.length === 3){
+		hex = hex.split('').map(c => c + c).join('');
+	}
+	const bigint = parseInt(hex, 16);
+	return {
+		r: (bigint >> 16) & 255,
+		g: (bigint >> 8) & 255,
+		b: bigint & 255
+	};
+}
+
+function getBoxes(){
+	return document.querySelectorAll('.container .box');
+}
+
+// reads color currently sitting in the first card,
+// so the palette functions build off of it instead of a random one
+function getBaseColorFromFirstCard(){
+	const boxes = getBoxes();
+	if(boxes.length === 0){
+		return generateRandomColor();
+	}
+	const hex = boxes[0].querySelector('.hexcode').textContent;
+	return hexToRgb(hex);
+}
+
+// sets a single box's displayed color
+function setBoxColor(box, color){
+	const boxColorDiv = box.querySelector('.boxColor');
+	const hexcodeDiv = box.querySelector('.hexcode');
+	const colorCodeDiv = box.querySelector('.colorCode');
+	boxColorDiv.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+	colorCodeDiv.textContent = `(${color.r}, ${color.g}, ${color.b})`;
+	hexcodeDiv.textContent = rgbToHex(color.r, color.g, color.b);
+}
+
+// applies a list of {r,g,b} colors to the current boxes, cycling if needed
+function applyColorsToBoxes(colors){
+	const boxes = getBoxes();
+	boxes.forEach((box, i) => {
+		setBoxColor(box, colors[i % colors.length]);
+	});
+}
+
 function achromatic(){
 	// black gray white
 	// r = g = b
-	let x = 255 / container.children.length;	
-
-
+	// NOTE: first card's color is now the seed - it's kept as-is, the rest spread out as grays
+	const count = getBoxes().length;
+	const mainColor = getBaseColorFromFirstCard();
+	const colors = [mainColor];
+	for(let i = 1; i < count; i++){
+		const value = count > 1 ? Math.round((255 / (count - 1)) * i) : 128;
+		colors.push({r: value, g: value, b: value});
+	}
+	applyColorsToBoxes(colors);
 }
 
-//TO DO
 function analogous(){
 	// colors next to each other on the color wheel
-	// rng the main color, +- for adjacents
-
+	// NOTE: base hue now comes from the first card instead of rng
+	const count = getBoxes().length;
+	const mainColor = getBaseColorFromFirstCard();
+	const baseHue = rgbToHsl(mainColor.r, mainColor.g, mainColor.b).h;
+	const spread = 30;
+	const colors = [mainColor];
+	for(let i = 1; i < count; i++){
+		const offset = count > 1 ? (-spread + (2 * spread) * (i / (count - 1))) : 0;
+		const hue = (baseHue + offset + 360) % 360;
+		colors.push(hslToRgb(hue, 70, 50));
+	}
+	applyColorsToBoxes(colors);
 }
 
-//TO DO
 function complementary(){
 	// pair of colors with max contrast
-	// rng the main color, grab complement
+	// NOTE: main color now comes from the first card instead of rng
 		// add in neutrals depending on number of colors
 			// 3 colors = 1 TRUE neutral between the pair (red, green, a color between)
 			// 4 colors = 2 neutrals with each complement (red, green, neutral red, neutral green)
 			// 5 colors = 2 neutrals with each complement + 1 TRUE neutral (red, green, neutral red, neutral green, true neutral)
 
-	let mainColor = generateRandomColor();
+	const count = getBoxes().length;
+	let mainColor = getBaseColorFromFirstCard();
 	let complementColor = {
 		r: 255 - mainColor.r,
 		g: 255 - mainColor.g,
 		b: 255 - mainColor.b
 	};
+	const neutralOf = (c) => ({
+		r: Math.round((c.r + 128) / 2),
+		g: Math.round((c.g + 128) / 2),
+		b: Math.round((c.b + 128) / 2)
+	});
+	const trueNeutral = {
+		r: Math.round((mainColor.r + complementColor.r) / 2),
+		g: Math.round((mainColor.g + complementColor.g) / 2),
+		b: Math.round((mainColor.b + complementColor.b) / 2)
+	};
+
+	let colors = [mainColor, complementColor];
+	if(count === 3){
+		colors = [mainColor, complementColor, trueNeutral];
+	} else if(count === 4){
+		colors = [mainColor, complementColor, neutralOf(mainColor), neutralOf(complementColor)];
+	} else if(count >= 5){
+		colors = [mainColor, complementColor, neutralOf(mainColor), neutralOf(complementColor), trueNeutral];
+		// ASSUMPTION: comments didn't specify 6+, extras cycle the 5-color set
+		while(colors.length < count){
+			colors.push(colors[colors.length % 5]);
+		}
+	}
+	applyColorsToBoxes(colors);
 }
 
-//TO DO
 function monochromatic(){
 	// one hue/color, vary the tones
-	// rng color - code for achromatic will help here
-
+	// NOTE: hue now comes from the first card instead of rng
+	const count = getBoxes().length;
+	const mainColor = getBaseColorFromFirstCard();
+	const hue = rgbToHsl(mainColor.r, mainColor.g, mainColor.b).h;
+	const colors = [mainColor];
+	for(let i = 1; i < count; i++){
+		const lightness = count > 1 ? 20 + (60 * (i / (count - 1))) : 50;
+		colors.push(hslToRgb(hue, 60, lightness));
+	}
+	applyColorsToBoxes(colors);
 }
 
-//TO DO
 function splitComplementary(){
 	// max contrast, grab one of the pair and split it equally
-	// rng main color, grab complement, split complement equally
+	// NOTE: base hue now comes from the first card instead of rng
+	const count = getBoxes().length;
+	const mainColor = getBaseColorFromFirstCard();
+	const baseHue = rgbToHsl(mainColor.r, mainColor.g, mainColor.b).h;
+	const complementHue = (baseHue + 180) % 360;
+	const anchors = [baseHue, (complementHue - 30 + 360) % 360, (complementHue + 30) % 360];
 
+	// ASSUMPTION: boxes beyond the 3 anchors repeat them at stepped-down lightness
+	const colors = [mainColor];
+	for(let i = 1; i < count; i++){
+		const hue = anchors[i % anchors.length];
+		const lightness = 50 - (10 * Math.floor(i / anchors.length));
+		colors.push(hslToRgb(hue, 70, Math.max(20, lightness)));
+	}
+	applyColorsToBoxes(colors);
 }
 
-//TO DO
 function triadic(){
 	// 3 equal distance colors
-	// rng main color, continue the cycle
-	
+	// NOTE: base hue now comes from the first card instead of rng
+	const count = getBoxes().length;
+	const mainColor = getBaseColorFromFirstCard();
+	const baseHue = rgbToHsl(mainColor.r, mainColor.g, mainColor.b).h;
+	const anchors = [baseHue, (baseHue + 120) % 360, (baseHue + 240) % 360];
+
+	const colors = [mainColor];
+	for(let i = 1; i < count; i++){
+		const hue = anchors[i % anchors.length];
+		const lightness = 50 - (10 * Math.floor(i / anchors.length));
+		colors.push(hslToRgb(hue, 70, Math.max(20, lightness)));
+	}
+	applyColorsToBoxes(colors);
 }
 
-//TO DO
 function tetradic(){
 	// 4 equal distance colors
-	// 	unsure how to implement
+	// NOTE: base hue now comes from the first card instead of rng
+	const count = getBoxes().length;
+	const mainColor = getBaseColorFromFirstCard();
+	const baseHue = rgbToHsl(mainColor.r, mainColor.g, mainColor.b).h;
+	const anchors = [baseHue, (baseHue + 90) % 360, (baseHue + 180) % 360, (baseHue + 270) % 360];
 
+	const colors = [mainColor];
+	for(let i = 1; i < count; i++){
+		const hue = anchors[i % anchors.length];
+		const lightness = 50 - (10 * Math.floor(i / anchors.length));
+		colors.push(hslToRgb(hue, 70, Math.max(20, lightness)));
+	}
+	applyColorsToBoxes(colors);
+}
+
+// ---- saved color "tic tac" strip ----
+
+// creates the strip above the cards if it isn't already there, so no HTML edit is required
+function ensureSavedColorsContainer(){
+	let saved = document.querySelector('.savedColors');
+	if(!saved){
+		saved = document.createElement('div');
+		saved.classList.add('savedColors');
+		const container = document.querySelector('.container');
+		container.parentNode.insertBefore(saved, container);
+	}
+	return saved;
+}
+
+function saveColorAsTicTac(hex){
+	const savedContainer = ensureSavedColorsContainer();
+	const tictac = document.createElement('div');
+	tictac.classList.add('tictac');
+	tictac.style.backgroundColor = hex;
+	tictac.style.width = '14px';
+	tictac.style.height = '14px';
+	tictac.style.borderRadius = '50%';
+	tictac.style.display = 'inline-block';
+	tictac.style.margin = '4px';
+	tictac.style.border = '1px solid #333';
+	tictac.style.cursor = 'pointer';
+	tictac.dataset.color = hex;
+	// clicking the tic tac unsaves it
+	tictac.addEventListener('click', function(){
+		tictac.remove();
+	});
+	savedContainer.appendChild(tictac);
 }
 
 
@@ -157,6 +349,23 @@ document.querySelector('.removeCardBtn').addEventListener('click', function(){
 
 document.querySelector('.reorderBtn').addEventListener('click', function(){
 	reorderBoxes();
+});
+
+document.querySelector('.achromaticBtn').addEventListener('click', achromatic);
+document.querySelector('.analogousBtn').addEventListener('click', analogous);
+document.querySelector('.complementaryBtn').addEventListener('click', complementary);
+document.querySelector('.monochromaticBtn').addEventListener('click', monochromatic);
+document.querySelector('.splitComplementaryBtn').addEventListener('click', splitComplementary);
+document.querySelector('.triadicBtn').addEventListener('click', triadic);
+document.querySelector('.tetradicBtn').addEventListener('click', tetradic);
+
+// NEW: clicking a card saves its color as a tic tac above the cards
+// (event delegation on .container so this also works for cards added later via addCard)
+document.querySelector('.container').addEventListener('click', function(event){
+	const box = event.target.closest('.box');
+	if(!box) return;
+	const hex = box.querySelector('.hexcode').textContent;
+	saveColorAsTicTac(hex);
 });
 
 //document.querySelector('box').addEventListener('click', function(){
@@ -211,6 +420,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         colorCodeInput.value = hex;
         colorSwatch.style.backgroundColor = hex;
+
+        // NEW: the picked color now also lands in the first card
+        const boxes = getBoxes();
+        if(boxes.length > 0){
+            setBoxColor(boxes[0], rgb);
+        }
     }
 	function hoverCircle(event){
 		const circle = clearCanvas.getBoundingClientRect();

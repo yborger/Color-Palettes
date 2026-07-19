@@ -2,7 +2,7 @@ body{
   padding: 25px;
 }
 
-button{
+.main{
   padding: 20px 15px;
   font-size: 16px;
   background-color: #5C6AC4;
@@ -29,6 +29,18 @@ button:active{
 
 .title {
 	color: #5C6AC4;
+}
+
+.second{
+  padding: 10px 15px;
+  font-size: 12px;
+  background-color: #5C6AC4;
+  color: white;
+  border: none;
+  box-shadow: 5px 5px 10px lightgray;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 5px;
 }
 
 .container {
