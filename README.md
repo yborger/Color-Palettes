@@ -26,3 +26,4 @@ Update 1/23: Idea of rounded colors or palette cards -- i like the idea of round
 
 update 2/25: swatched colors in gradient in like "pill shapes" or card stack - card stack looked really messy last time so i will draft a few to see if thats still possible otherwise consider other
 
+update 7/19: nearly done, main concept is in
