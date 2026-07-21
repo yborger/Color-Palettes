@@ -3,6 +3,13 @@ function addCard(){
 	var newBox = document.createElement('div'); //make new
 	newBox.classList.add('box'); //label as a box (for css!)
 
+	// NEW: little "-" delete button in the top right of every card
+	var deleteBtn = document.createElement('button');
+	deleteBtn.classList.add('deleteCardBtn');
+	deleteBtn.textContent = '\u2212'; // minus sign
+	deleteBtn.setAttribute('aria-label', 'Delete card');
+	deleteBtn.type = 'button';
+
 	//make the inner html structure of the boxes
 	var colorCodeDiv = document.createElement('div'); 
 	colorCodeDiv.textContent = '(r,g,b)';
@@ -14,19 +21,13 @@ function addCard(){
 	hexcodeDiv.classList.add('hexcode');
 
 	//add the inner structure to the box so it is the same as the others
+	newBox.appendChild(deleteBtn);
 	newBox.appendChild(colorCodeDiv);
 	newBox.appendChild(hexcodeDiv);
 	newBox.appendChild(boxColorDiv); 
 
 	document.querySelector('.container').appendChild(newBox); //add the new box to the container!
-}
-
-function removeCard(){
-	// remove the cards
-	var container = document.querySelector('.container'); 
-	if(container.children.length > 0){
-		container.removeChild(container.lastChild);
-	}
+	return newBox; // NEW: callers (saved-color click, etc.) need a handle on the box they just made
 }
 
 function generateRandomColor(){
@@ -313,8 +314,11 @@ function saveColorAsTicTac(hex){
 	tictac.style.border = '1px solid #333';
 	tictac.style.cursor = 'pointer';
 	tictac.dataset.color = hex;
-	// clicking the tic tac unsaves it
+	// clicking the tic tac unsaves it AND spawns a new card in that color
 	tictac.addEventListener('click', function(){
+		const rgb = hexToRgb(tictac.dataset.color);
+		const newBox = addCard();
+		setBoxColor(newBox, rgb);
 		tictac.remove();
 	});
 	savedContainer.appendChild(tictac);
@@ -343,10 +347,6 @@ document.querySelector('.addCardBtn').addEventListener('click', function(){
 	addCard();
 });
 
-document.querySelector('.removeCardBtn').addEventListener('click', function(){
-	removeCard();
-});
-
 document.querySelector('.reorderBtn').addEventListener('click', function(){
 	reorderBoxes();
 });
@@ -359,19 +359,135 @@ document.querySelector('.splitComplementaryBtn').addEventListener('click', split
 document.querySelector('.triadicBtn').addEventListener('click', triadic);
 document.querySelector('.tetradicBtn').addEventListener('click', tetradic);
 
-// NEW: clicking a card saves its color as a tic tac above the cards
+// tracks whether the mouse-up that follows a drag should be allowed to
+// fall through into the container's click handler (save color / delete)
+let suppressCardClick = false;
+
+// clicking a card saves its color as a tic tac above the cards,
+// or deletes the card if the click landed on its "-" button
 // (event delegation on .container so this also works for cards added later via addCard)
 document.querySelector('.container').addEventListener('click', function(event){
+	if(suppressCardClick){
+		// this click is the tail end of a drag, not a real click - ignore it once
+		suppressCardClick = false;
+		return;
+	}
+
+	const deleteBtn = event.target.closest('.deleteCardBtn');
+	if(deleteBtn){
+		deleteBtn.closest('.box').remove();
+		return;
+	}
+
 	const box = event.target.closest('.box');
 	if(!box) return;
 	const hex = box.querySelector('.hexcode').textContent;
 	saveColorAsTicTac(hex);
 });
 
-//document.querySelector('box').addEventListener('click', function(){
-	// future feature: lock in a color so it doesn't change on generate
+// ---- drag-and-drop card reordering ----
+// pointer-based (mousedown/mousemove/mouseup) rather than native HTML5 drag-and-drop,
+// so the dragged card can grow and follow the cursor smoothly instead of using the
+// browser's default drag ghost image
 
-//});
+(function enableCardDragging(){
+	const container = document.querySelector('.container');
+	const DRAG_THRESHOLD = 5; // px of movement before a click becomes a drag
+
+	let draggedBox = null;
+	let isDragging = false;
+	let startX = 0, startY = 0;
+	let grabOffsetX = 0, grabOffsetY = 0;
+
+	container.addEventListener('mousedown', function(event){
+		// dragging starts from anywhere on the card except its delete button
+		if(event.target.closest('.deleteCardBtn')) return;
+		const box = event.target.closest('.box');
+		if(!box) return;
+
+		draggedBox = box;
+		isDragging = false;
+		startX = event.clientX;
+		startY = event.clientY;
+
+		const rect = box.getBoundingClientRect();
+		grabOffsetX = event.clientX - rect.left;
+		grabOffsetY = event.clientY - rect.top;
+
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
+	});
+
+	function onMouseMove(event){
+		if(!draggedBox) return;
+
+		const dx = event.clientX - startX;
+		const dy = event.clientY - startY;
+
+		if(!isDragging){
+			if(Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+
+			// movement crossed the threshold - this is officially a drag now.
+			// pull the card out of the flex flow and pin its current size so
+			// it doesn't collapse/resize when it goes to position: fixed
+			isDragging = true;
+			const rect = draggedBox.getBoundingClientRect();
+			draggedBox.style.width = `${rect.width}px`;
+			draggedBox.style.height = `${rect.height}px`;
+			draggedBox.style.position = 'fixed';
+			draggedBox.classList.add('dragging');
+			document.body.style.userSelect = 'none';
+		}
+
+		draggedBox.style.left = `${event.clientX - grabOffsetX}px`;
+		draggedBox.style.top = `${event.clientY - grabOffsetY}px`;
+
+		// figure out where the card should land among its siblings, and
+		// physically move it in the DOM - the flex container reflows the
+		// rest of the cards into place automatically
+		const siblings = Array.from(container.children).filter(el => el !== draggedBox);
+		let insertBefore = null;
+
+		for(const sib of siblings){
+			const sibRect = sib.getBoundingClientRect();
+			const inSameRow = event.clientY >= sibRect.top && event.clientY <= sibRect.bottom;
+			const sibCenterX = sibRect.left + sibRect.width / 2;
+			const sibCenterY = sibRect.top + sibRect.height / 2;
+
+			if(inSameRow ? event.clientX < sibCenterX : event.clientY < sibCenterY){
+				insertBefore = sib;
+				break;
+			}
+		}
+
+		if(insertBefore){
+			container.insertBefore(draggedBox, insertBefore);
+		} else {
+			container.appendChild(draggedBox);
+		}
+	}
+
+	function onMouseUp(){
+		if(draggedBox && isDragging){
+			// the browser will still fire a native 'click' right after this -
+			// suppress just that one so a drag doesn't also save/delete the card
+			suppressCardClick = true;
+
+			draggedBox.classList.remove('dragging');
+			draggedBox.style.position = '';
+			draggedBox.style.left = '';
+			draggedBox.style.top = '';
+			draggedBox.style.width = '';
+			draggedBox.style.height = '';
+			document.body.style.userSelect = '';
+		}
+
+		draggedBox = null;
+		isDragging = false;
+		document.removeEventListener('mousemove', onMouseMove);
+		document.removeEventListener('mouseup', onMouseUp);
+	}
+})();
 
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('color-wheel');
