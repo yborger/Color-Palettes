@@ -7,3 +7,6 @@ The base project is to create color combinations based on randomly generated num
 - Palette-creation based on color theory
 - Add and Remove cards (choice of removal)
 - Drag-drop rearranging
+
+# Tools
+This project is built using Javascript, HTML, and CSS. This is completely plain code.  
